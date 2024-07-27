@@ -71,26 +71,60 @@ const renderAdminPage = (virtualHosts) => {
       	<title>Virtual Host Admin Panel</title>
 		<style>
 
-			.container {
-				display: flex;
-				width: 100%;
-				justify-content: space-evenly;
-				max-width: 1440px;
-				margin: 0 auto;
+			body {
+				font-family: 'Arial', sans-serif;
+				background-color: #f4f4f9;
+				color: #333;
+				margin: 0;
+				padding: 0;
 			}
 
-			h1, h2, p {
+			h1 {
+				font-size: 2.5em;
+				margin-top: 20px;
+				color: #2c3e50;
+			}
+
+			h2 {
+				font-size: 1.8em;
+				color: #34495e;
+			}
+
+			p {
+				font-size: 1em;
+				color: #7f8c8d;
+			}
+
+			body > h1, body > p {
 				text-align: center;
+			} 
+
+			.container {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				max-width: 1200px;
+				margin: 0 auto;
+				padding: 20px;
+				background-color: #fff;
+				box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+				border-radius: 10px;
 			}
 
 			.container > div {
-				width: 45%;
-				padding: 24px 0;
+				width: 90%;
+				margin: 20px 0;
+				padding: 20px;
+				background-color: #ecf0f1;
+				border-radius: 10px;
+				box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 			}
 
 			#divider {
-				width: 1px;
-				background-color: rgba(0, 0, 0, 0.3);
+				width: 100%;
+				height: 2px;
+				background-color: #bdc3c7;
+				margin: 20px 0;
 			}
 
 			form {
@@ -99,9 +133,65 @@ const renderAdminPage = (virtualHosts) => {
 				row-gap: 12px;
 			}
 
-			form > button {
-				margin-top: 12px;
-				align-self: center;
+			form textarea, form input[type="text"] {
+				width: 100%;
+				padding: 10px;
+				font-size: 1em;
+				border: 1px solid #bdc3c7;
+				border-radius: 5px;
+				box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+			}
+
+			form input[type="text"]:focus, form textarea:focus {
+				outline: none;
+				border-color: #3498db;
+			}
+
+			form button {
+				padding: 10px 20px;
+				font-size: 1em;
+				color: #fff;
+				background-color: #3498db;
+				border: none;
+				border-radius: 5px;
+				cursor: pointer;
+				transition: background-color 0.3s ease;
+			}
+
+			form button:hover {
+				background-color: #2980b9;
+			}
+
+			ul {
+				list-style: none;
+				padding: 0;
+			}
+
+			ul li {
+				padding: 10px;
+				background-color: #fff;
+				border: 1px solid #bdc3c7;
+				border-radius: 5px;
+				margin: 10px 0;
+				box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			}
+
+			ul li button {
+				padding: 5px 10px;
+				font-size: 0.9em;
+				color: #fff;
+				background-color: #e74c3c;
+				border: none;
+				border-radius: 5px;
+				cursor: pointer;
+				transition: background-color 0.3s ease;
+			}
+
+			ul li button:hover {
+				background-color: #c0392b;
 			}
 		</style>
     </head>
@@ -118,12 +208,12 @@ const renderAdminPage = (virtualHosts) => {
 					</div>
 					<div>
 						<label for="content">Contents of the index.html file for new subdomain:</label>
-						<textarea id="content" name="content" required></textarea>
+						<br>
+						<textarea id="content" name="content" rows="7" columns="40" required></textarea>
 					</div>
 					<button type="submit">Add Virtual Host</button>
 				</form>
 			</div>
-			<div id="divider"></div>
 			<div id="delete-section">
 				<h2>Remove an existing virtual host</h2>
 				<ul>
@@ -131,6 +221,7 @@ const renderAdminPage = (virtualHosts) => {
 				</ul>
 			</div>
 		</div>
+		<p>Built by Davit Sahakyan, Hrach Davtyan</p>
 	</body>
 </html>
   `;
@@ -168,7 +259,11 @@ ${renderAdminPage(virtualHosts)}
 
 				const newSubdomainFilePath = path.join(__dirname, 'hosts', subdomain);
 
-				await fs.mkdir(newSubdomainFilePath);
+				try {
+					await fs.mkdir(newSubdomainFilePath);
+				} catch (error) {
+					console.log(`Folder already exists, updating files for ${subdomain}`);
+				}
 
 				await fs.writeFile(path.join(newSubdomainFilePath, 'index.html'), content);
 
