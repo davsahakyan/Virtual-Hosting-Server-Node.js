@@ -66,30 +66,73 @@ const renderAdminPage = (virtualHosts) => {
     <!DOCTYPE html>
     <html lang="en">
     <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Virtual Host Admin Panel</title>
+      	<meta charset="UTF-8">
+      	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+      	<title>Virtual Host Admin Panel</title>
+		<style>
+
+			.container {
+				display: flex;
+				width: 100%;
+				justify-content: space-evenly;
+				max-width: 1440px;
+				margin: 0 auto;
+			}
+
+			h1, h2, p {
+				text-align: center;
+			}
+
+			.container > div {
+				width: 45%;
+				padding: 24px 0;
+			}
+
+			#divider {
+				width: 1px;
+				background-color: rgba(0, 0, 0, 0.3);
+			}
+
+			form {
+				display: flex;
+				flex-direction: column;
+				row-gap: 12px;
+			}
+
+			form > button {
+				margin-top: 12px;
+				align-self: center;
+			}
+		</style>
     </head>
     <body>
-      <h1>Virtual Host Admin Panel</h1>
-      <form action="/add" method="post">
-        <div>
-          <label for="subdomain">Subdomain:</label>
-          <input type="text" id="subdomain" name="subdomain" required>
-        </div>
-        <div>
-          <label for="content">Contents of the index.html file for new subdomain:</label>
-          <textarea id="content" name="content" required></textarea>
-        </div>
-        <button type="submit">Add Virtual Host</button>
-      </form>
-    
-      <h2>Existing Virtual Hosts</h2>
-      <ul>
-			${virtualHostsToHTML(virtualHosts)}
-      </ul>
-    </body>
-    </html>
+      	<h1>Virtual Host Admin Panel</h1>
+		<p>Not the best UI, but not the worst UI</p>
+		<div class="container">
+			<div id="new-section">
+				<h2>Add a new virtual host</h2>
+				<form action="/add" method="post">
+					<div>
+						<label for="subdomain">Subdomain:</label>
+						<input type="text" id="subdomain" name="subdomain" required>
+					</div>
+					<div>
+						<label for="content">Contents of the index.html file for new subdomain:</label>
+						<textarea id="content" name="content" required></textarea>
+					</div>
+					<button type="submit">Add Virtual Host</button>
+				</form>
+			</div>
+			<div id="divider"></div>
+			<div id="delete-section">
+				<h2>Remove an existing virtual host</h2>
+				<ul>
+						${virtualHostsToHTML(virtualHosts)}
+				</ul>
+			</div>
+		</div>
+	</body>
+</html>
   `;
 };
 
@@ -136,13 +179,13 @@ ${renderAdminPage(virtualHosts)}
 			} else if (url === '/delete') {
 
 				const { subdomain } = parsedBody;
-				
+
 				const subdomainPath = path.join(__dirname, 'hosts', subdomain);
-				
+
 				await fs.rm(subdomainPath, { recursive: true, force: true });
-				
+
 				delete virtualHosts[subdomain];
-				
+
 				saveVirtualHosts(virtualHosts);
 			}
 

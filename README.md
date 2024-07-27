@@ -4,7 +4,9 @@
 
 This is our implementation of the Virtual Hosting Server project.
 
-`Note` For virtual hosts to work properly on a local machine, you need to include them into the 
+### Note
+
+ For virtual hosts to work properly on a local machine, you need to include them into the 
 
 - on Linux -  `/etc/hosts` file
 
@@ -12,7 +14,7 @@ This is our implementation of the Virtual Hosting Server project.
 
 The screenshot below illustrates an example of how it would look (taken on Ubuntu Linux)
 
-![alt text](image.png)
+![alt text](readme_hosts_image.png)
 
 ## Installation
 
@@ -36,6 +38,6 @@ To run the admin server, run
 npm run admin
 ```
 
-### Participants
+## Participants
 
 The project was written by **Hrach Davtyan** and **Davit Sahakyan**.
