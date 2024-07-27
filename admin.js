@@ -30,8 +30,16 @@ const readVirtualHosts = () => {
 }
 
 // Function to save virtual hosts to file
-const saveVirtualHosts = () => {
-	fs.writeFileSync(virtualHostsFile, virtualHosts);
+const saveVirtualHosts = (virtualHosts) => {
+	return new Promise((resolve, reject) => {
+		fs.writeFile(virtualHostsFile, JSON.stringify(virtualHosts))
+			.then((data) => {
+				resolve();
+			})
+			.catch((err) => {
+				reject(err)
+			});
+	})
 };
 
 const virtualHostsToHTML = (virtualHosts) => {
@@ -70,7 +78,7 @@ const renderAdminPage = (virtualHosts) => {
           <input type="text" id="subdomain" name="subdomain" required>
         </div>
         <div>
-          <label for="content">Content:</label>
+          <label for="content">Contents of the index.html file for new subdomain:</label>
           <textarea id="content" name="content" required></textarea>
         </div>
         <button type="submit">Add Virtual Host</button>
@@ -109,32 +117,42 @@ ${renderAdminPage(virtualHosts)}
 			socket.write(response);
 			socket.end();
 		} else if (method === 'POST' && (url === '/add' || url === '/delete')) {
-			let bodyData = '';
-			socket.on('data', chunk => {
-				bodyData += chunk.toString();
-			});
+			let bodyData = body;
 
-			console.log(bodyData);
+			const parsedBody = querystring.parse(bodyData);
+			if (url === '/add') {
+				const { subdomain, content } = parsedBody;
 
-			socket.on('end', () => {
-				const parsedBody = querystring.parse(bodyData);
-				if (url === '/add') {
-					const { subdomain, content } = parsedBody;
-					virtualHosts.push({ subdomain, content });
-					saveVirtualHosts();
-				} else if (url === '/delete') {
-					const { subdomain } = parsedBody;
-					virtualHosts = virtualHosts.filter(vhost => vhost.subdomain !== subdomain);
-					saveVirtualHosts();
-				}
+				const newSubdomainFilePath = path.join(__dirname, 'hosts', subdomain);
 
-				const response = `
+				await fs.mkdir(newSubdomainFilePath);
+
+				await fs.writeFile(path.join(newSubdomainFilePath, 'index.html'), content);
+
+				virtualHosts[subdomain] = 'hosts/' + subdomain;
+
+				saveVirtualHosts(virtualHosts);
+
+			} else if (url === '/delete') {
+
+				const { subdomain } = parsedBody;
+				
+				const subdomainPath = path.join(__dirname, 'hosts', subdomain);
+				
+				await fs.rm(subdomainPath, { recursive: true, force: true });
+				
+				delete virtualHosts[subdomain];
+				
+				saveVirtualHosts(virtualHosts);
+			}
+
+			const response = `
 HTTP/1.1 303 See Other
 Location: /
 `;
-				socket.write(response);
-				socket.end();
-			});
+
+			socket.write(response);
+			socket.end();
 		} else {
 			const response = `
 HTTP/1.1 404 Not Found
