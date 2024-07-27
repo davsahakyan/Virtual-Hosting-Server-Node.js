@@ -43,5 +43,5 @@ const server = net.createServer((socket) => {
 
 const PORT = 8500;
 server.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`\nServer is running on port ${PORT}`);
 });
