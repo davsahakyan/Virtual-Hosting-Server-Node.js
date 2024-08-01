@@ -1,7 +1,6 @@
 const net = require('net');
 const fs = require('fs').promises;
 const path = require('path');
-const express = require('express');
 
 const handleRequest = async (socket, data) => {
     const requestHeaders = data.toString().split('\r\n');
